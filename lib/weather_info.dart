@@ -1,11 +1,47 @@
 import 'package:flutter/material.dart';
 import 'main.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
 
-class Show_weather extends StatelessWidget {
+class Show_weather extends StatefulWidget {
   const Show_weather({super.key});
 
   @override
+  State<Show_weather> createState() => _Show_weatherState();
+}
+
+class _Show_weatherState extends State<Show_weather> {
+  Map<String, dynamic> weatherData = {};
+
+  @override
+  void initState() {
+    super.initState();
+    fetchData();
+  }
+
+  Future<void> fetchData() async {
+    final response = await http.get(Uri.parse(
+        'https://api.weatherapi.com/v1/forecast.json?key=e10fc4558c3344f188444159230709&q=chennai&days=1&aqi=yes&alerts=yes'));
+
+    if (response.statusCode == 200) {
+      setState(() {
+        weatherData = json.decode(response.body);
+      });
+    } else {
+      throw Exception('Failed to load data');
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
+    final currentWeather = weatherData['current'];
+    final location = weatherData['location'];
+    final forecast = weatherData['forecast'];
+    final dailyforecast = forecast['forecastday'][0]['day'];
+    final hourlyforecast = forecast['forecastday'][0]['hour'];
+    String icon ="https:${dailyforecast['condition']['icon']}";
+
+
     final String receivedString =
         ModalRoute.of(context)?.settings.arguments as String;
     return Scaffold(
@@ -31,17 +67,16 @@ class Show_weather extends StatelessWidget {
                 const SizedBox(
                   height: 60,
                 ),
-                const Text(
-                  '30\u00B0C',
-                  style: TextStyle(fontSize: 60, fontWeight: FontWeight.bold),
+                 Text('${currentWeather['temp_c']}°C',
+                  style: const TextStyle(fontSize: 60, fontWeight: FontWeight.bold),
                 ),
                 Row(
                   children: [
                     const SizedBox(
                       width: 20,
                     ),
-                    const Text(
-                      "Min : 26",
+                     Text(
+                      "${dailyforecast['mintemp_c']}°C",
                       style:
                           TextStyle(fontSize: 20, fontWeight: FontWeight.w700),
                     ),
@@ -49,23 +84,23 @@ class Show_weather extends StatelessWidget {
                       width: 20,
                     ),
                     Image.network(
-                      "https://cdn.weatherapi.com/weather/64x64/day/176.png",
+                      icon,
                       width: 100,
                       height: 120,
                     ),
                     const SizedBox(
                       width: 30,
                     ),
-                    const Text(
-                      "Max : 34",
+                    Text(
+                        '${dailyforecast['maxtemp_c']}°C',
                       style:
                           TextStyle(fontSize: 20, fontWeight: FontWeight.w600),
                     ),
                   ],
                 ),
-                const Text(
-                  "Patchy rain possible",
-                  style: TextStyle(
+                 Text(
+                   '${dailyforecast['condition']['text']}',
+                  style: const TextStyle(
                       fontSize: 28,
                       color: Colors.black,
                       fontWeight: FontWeight.bold),
@@ -145,15 +180,15 @@ class Show_weather extends StatelessWidget {
                           border: Border.all(color: Colors.black, width: 2.0),
                           borderRadius: BorderRadius.circular(10.0),
                           color: Colors.transparent),
-                      child: const Column(
+                      child:  Column(
                           mainAxisAlignment: MainAxisAlignment
                               .center, // Align children in the center vertically
                           crossAxisAlignment: CrossAxisAlignment.center,
                           children: [
-                            SizedBox(
+                            const SizedBox(
                               height: 10,
                             ),
-                            Text(
+                            const Text(
                               "UV",
                               style: TextStyle(
                                   color: Colors.black,
@@ -161,8 +196,8 @@ class Show_weather extends StatelessWidget {
                                   fontWeight: FontWeight.w500),
                             ),
                             Text(
-                              "8",
-                              style: TextStyle(
+                              '${currentWeather['uv']}',
+                              style: const TextStyle(
                                   color: Colors.black,
                                   fontSize: 40,
                                   fontWeight: FontWeight.w500),
@@ -171,7 +206,7 @@ class Show_weather extends StatelessWidget {
                     ),
                   ],
                 ),
-                SizedBox(
+                const SizedBox(
                   height: 20,
                 ),
                 Row(

@@ -1,6 +1,9 @@
+
+
 import 'package:flutter/material.dart';
 import 'package:flutter/src/material/colors.dart';
 import 'weather_info.dart';
+
 void main() {
   runApp(MyApp());
 }
@@ -26,6 +29,7 @@ class _MyHomePageState extends State<MyHomePage> {
   String _displayText = "";
 
   void _updateText() {
+
     setState(() {
       _displayText = _textController.text;
     });
@@ -74,7 +78,7 @@ class _MyHomePageState extends State<MyHomePage> {
             const SizedBox(height: 20),
             const SizedBox(height: 20),
             ElevatedButton(
-              onPressed: _updateText,
+              onPressed:_updateText,
               child: Text('Search'),
             ),
           ],
